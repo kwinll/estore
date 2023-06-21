@@ -1,9 +1,9 @@
 package com.alezhang.estore.data.enumeration;
 
-public enum Currency {
+public enum ProductCurrency {
     HKD;
 
-    Currency defaultCCY() {
+    public static ProductCurrency defaultCCY() {
         return HKD;
     }
 }

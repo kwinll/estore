@@ -1,24 +1,27 @@
+package com.alezhang.estore.service.impl;
+
 import com.alezhang.estore.EstoreApplication;
 import com.alezhang.estore.data.enumeration.AccountType;
 import com.alezhang.estore.data.model.Account;
-import com.alezhang.estore.service.impl.AccountServiceImpl;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.annotation.Resource;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static com.alezhang.estore.service.impl.constant.EStoreTestConstants.ADMIN_ACCT_ID;
+import static com.alezhang.estore.service.impl.constant.EStoreTestConstants.RETAIL_ACCT_ID;
+import static org.junit.jupiter.api.Assertions.*;
+
 
 @SpringBootTest(classes = EstoreApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class AccountServiceTest {
     @Resource
     private AccountServiceImpl accountService;
-    private static final Long ADMIN_ACCT_ID = 100001L;
-    private static final Long RETAIL_ACCT_ID = 100002L;
+
 
     @Test
     public void findAccountByUid() {

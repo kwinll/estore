@@ -1,2 +1,5 @@
-package com.alezhang.estore.service;public class AbstractBaseService {
+package com.alezhang.estore.service;
+
+public abstract class AbstractBaseService {
+    public abstract void checkPermission(long uid);
 }
