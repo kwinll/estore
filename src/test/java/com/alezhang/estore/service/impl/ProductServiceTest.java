@@ -17,7 +17,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.annotation.Resource;
-import javax.transaction.Transactional;
 import java.util.List;
 
 import static com.alezhang.estore.service.impl.constant.EStoreTestConstants.*;

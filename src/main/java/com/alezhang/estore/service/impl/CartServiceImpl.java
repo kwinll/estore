@@ -38,6 +38,8 @@ public class CartServiceImpl extends AbstractBaseService implements ICartService
 
     private static final IEStoreLock<String> CART_LOCK = new EStoreLockUtils<>();
 
+    private static final BigDecimal PERCENTAGE_DENOMINATOR = new BigDecimal("100");
+
 
     /**
      * Add/remove product into the cart
@@ -176,11 +178,11 @@ public class CartServiceImpl extends AbstractBaseService implements ICartService
                 // if 100 percent off for the last one -> product price * 100.100
                 // if 70* percent off for the last one -> product price * 70/100
                 discountAmount = product.getPrice().multiply(
-                        BigDecimal.valueOf(discount.getDiscountPercentage()).divide(new BigDecimal("100"), 8,
+                        BigDecimal.valueOf(discount.getDiscountPercentage()).divide(PERCENTAGE_DENOMINATOR, 8,
                                 RoundingMode.HALF_UP));
             } else {
                 discountAmount = originalTotalPrice.multiply(
-                        BigDecimal.valueOf(discount.getDiscountPercentage()).divide(new BigDecimal("100"), 8,
+                        BigDecimal.valueOf(discount.getDiscountPercentage()).divide(PERCENTAGE_DENOMINATOR, 8,
                                 RoundingMode.HALF_UP));
 
             }

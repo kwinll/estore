@@ -10,5 +10,5 @@ import lombok.Data;
 public class ModifyCartReq {
     private Long uid;
     private String productId;
-    private int count; // if count is 0 means delete, otherwise upsert the count
+    private int count; // if count is 0 means delete, otherwise upsert the cart item
 }
