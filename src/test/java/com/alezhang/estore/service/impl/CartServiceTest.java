@@ -169,6 +169,31 @@ public class CartServiceTest {
         });
     }
 
+    @Test
+    public void checkout2() {
+        when(modifyCartReq1.getCount()).thenReturn(2);
+        when(modifyCartReq2.getCount()).thenReturn(1);
+        addProduct();
+        addDiscount();
+        cartService.modify(modifyCartReq1);
+        cartService.modify(modifyCartReq2);
+        CheckoutResp checkoutResp = cartService.checkout(RETAIL_ACCT_ID);
+        assertNotNull(checkoutResp);
+        assertEquals(0, checkoutResp.getDiscount().compareTo(new BigDecimal("5")));
+        assertEquals(0, checkoutResp.getRealTotalPrice().compareTo(new BigDecimal("16")));
+        checkoutResp.getCheckoutDetails().forEach(checkoutDetail ->
+        {
+            if (checkoutDetail.getProductId().equals(TEST_PRODUCT_ID_1)) {
+                assertEquals(0, checkoutDetail.getDiscount().compareTo(new BigDecimal("5")));
+                assertEquals(0, checkoutDetail.getRealTotalPrice().compareTo(new BigDecimal("15")));
+
+            } else if (checkoutDetail.getProductId().equals(TEST_PRODUCT_ID_2)) {
+                assertEquals(0, checkoutDetail.getDiscount().compareTo(new BigDecimal("0")));
+                assertEquals(0, checkoutDetail.getRealTotalPrice().compareTo(new BigDecimal("1")));
+            }
+        });
+    }
+
     private void addProduct() {
         when(addProductReq1.getProductId()).thenReturn(TEST_PRODUCT_ID_1);
         when(addProductReq1.getPrice()).thenReturn(TEST_PRICE_1);
