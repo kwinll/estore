@@ -48,9 +48,9 @@ Per schema.sql under resource folder:
 2. One product only allow one discount so that we could avoid discount conflicts
 3. Admin is able to specify discount strategy, at present two strategies supported:
 
-| BUY_N_GET_LAST_DISCOUNT  | if the count of product >=`triggerThreshold`,`discountPercentage` would be applied at the last product  |
-| ------------------------ | ---------------------------------------------------------------------------------------------------------- |
-| BUY_N_GET_TOTAL_DISCOUNT | if the count of product >=`triggerThreshold`,`discountPercentage` would be applied at the total amount   |
+| BUY_N_GET_LAST_DISCOUNT  |if the count of product >=`triggerThreshold`,`discountPercentage` would be applied at the last product  |
+| ------------------------ | -------------------------------------------------------------------------------------------------------- |
+| BUY_N_GET_TOTAL_DISCOUNT |if the count of product >=`triggerThreshold`,`discountPercentage` would be applied at the total amount  |
 
 4. If removing a discount, will also check the product id to see whether it's valid or not
 5. There is a permission check for all write operations of discount. If it's a pure read, permission is ignored
