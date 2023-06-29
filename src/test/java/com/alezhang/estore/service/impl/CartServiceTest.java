@@ -47,9 +47,9 @@ public class CartServiceTest {
     @Mock
     private ModifyCartReq modifyCartReq1, modifyCartReq2;
     @Mock
-    private AddProductReq addProductReq1, addProductReq2;
+    private AddProductReq addProductReq1, addProductReq2, addProductReq3;
     @Mock
-    private AddDiscountReq addDiscountReq1, addDiscountReq2;
+    private AddDiscountReq addDiscountReq1, addDiscountReq2, addDiscountReq3;
 
 
     @BeforeEach
@@ -93,6 +93,7 @@ public class CartServiceTest {
                 "Cannot remove product from cart since it's not in cart");
 
     }
+
 
     @Test
     public void addCart() {
@@ -170,6 +171,32 @@ public class CartServiceTest {
     }
 
     @Test
+    public void checkoutNew() {
+        when(modifyCartReq1.getCount()).thenReturn(2);
+        when(modifyCartReq2.getCount()).thenReturn(3);
+        addProduct();
+        addDiscount();
+        cartService.modify(modifyCartReq1);
+        cartService.modify(modifyCartReq2);
+        CheckoutResp checkoutResp = cartService.checkout(RETAIL_ACCT_ID);
+        assertNotNull(checkoutResp);
+        assertEquals(0, checkoutResp.getDiscount().compareTo(new BigDecimal("6.5")));
+        assertEquals(0, checkoutResp.getRealTotalPrice().compareTo(new BigDecimal("16.5")));
+        checkoutResp.getCheckoutDetails().forEach(checkoutDetail ->
+        {
+            if (checkoutDetail.getProductId().equals(TEST_PRODUCT_ID_1)) {
+                assertEquals(0, checkoutDetail.getDiscount().compareTo(new BigDecimal("5")));
+                assertEquals(0, checkoutDetail.getRealTotalPrice().compareTo(new BigDecimal("15")));
+
+            } else if (checkoutDetail.getProductId().equals(TEST_PRODUCT_ID_2)) {
+                assertEquals(0, checkoutDetail.getDiscount().compareTo(new BigDecimal("1.5")));
+                assertEquals(0, checkoutDetail.getRealTotalPrice().compareTo(new BigDecimal("1.5")));
+            }
+        });
+    }
+
+
+    @Test
     public void checkout2() {
         when(modifyCartReq1.getCount()).thenReturn(2);
         when(modifyCartReq2.getCount()).thenReturn(1);
@@ -208,6 +235,13 @@ public class CartServiceTest {
         when(addProductReq2.getOperatorUid()).thenReturn(ADMIN_ACCT_ID);
 
         productService.addProduct(addProductReq2);
+
+        when(addProductReq3.getProductId()).thenReturn(TEST_PRODUCT_ID_3);
+        when(addProductReq3.getPrice()).thenReturn(TEST_PRICE_3);
+        when(addProductReq3.getProductName()).thenReturn(TEST_PRODUCT_NAME_3);
+        when(addProductReq3.getOperatorUid()).thenReturn(ADMIN_ACCT_ID);
+
+        productService.addProduct(addProductReq3);
     }
 
     public void addDiscount() {
@@ -226,6 +260,14 @@ public class CartServiceTest {
         when(addDiscountReq2.getUid()).thenReturn(ADMIN_ACCT_ID);
 
         discountService.addDiscount(addDiscountReq2);
+
+        when(addDiscountReq3.getProductId()).thenReturn(TEST_PRODUCT_ID_3);
+        when(addDiscountReq3.getDiscountStrategy()).thenReturn(DiscountStrategy.BUY_N_GET_STH_FREE);
+        when(addDiscountReq3.getDiscountPercentage()).thenReturn(50);
+        when(addDiscountReq3.getTriggerThreshold()).thenReturn(TEST_BUY_N_GET_STH_FREE_THRESHOLD);
+        when(addDiscountReq3.getUid()).thenReturn(ADMIN_ACCT_ID);
+
+        discountService.addDiscount(addDiscountReq3);
     }
 
 }

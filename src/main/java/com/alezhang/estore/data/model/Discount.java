@@ -23,4 +23,6 @@ public class Discount {
     private Date dbCreateTime;
     @Column(name = "db_modify_time", insertable = false, updatable = false)
     private Date dbModifyTime;
+    @Column(name = "tirgger_product_ids")
+    private String triggerProductIds; //1,2,3
 }

@@ -15,13 +15,19 @@ public final class EStoreTestConstants {
 
     public static final String TEST_PRODUCT_ID_1 = "ALEX12345678";
     public static final String TEST_PRODUCT_ID_2 = "ALEX12345679";
+    public static final String TEST_PRODUCT_ID_3 = "ALEX12345680";
 
     public static final BigDecimal TEST_PRICE_1 = BigDecimal.TEN;
     public static final BigDecimal TEST_PRICE_2 = BigDecimal.ONE;
+
+    public static final BigDecimal TEST_PRICE_3 = new BigDecimal("100");
     public static final String TEST_PRODUCT_NAME_1 = "Alex's Coin";
     public static final String TEST_PRODUCT_NAME_2 = "Zhang's Coin";
 
+    public static final String TEST_PRODUCT_NAME_3 = "Zhang's Free Coin";
+
     public static final DiscountStrategy TEST_DISCOUNT_STRATEGY = DiscountStrategy.BUY_N_GET_LAST_DISCOUNT;
     public static final int TEST_TRIGGER_THRESHOLD = 2;
+    public static final int TEST_BUY_N_GET_STH_FREE_THRESHOLD = 2;
     public static final int TEST_DISCOUNT_PERCENTAGE = 45;
 }

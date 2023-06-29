@@ -24,6 +24,7 @@ create table discount
     strategy            varchar(64) not null comment 'discount strategy',
     trigger_threshold   INTEGER comment 'if the total amount of that product bigger than the threashold, will apply the strategy and discount percentage',
     discount_percentage smallint    not null comment 'the discount percentage, eg 50 -> 50% off',
+    tirgger_product_ids varchar(1024)  comment 'the trigger product ids',
     db_create_time      datetime(3) default CURRENT_TIMESTAMP(3) comment 'db create time',
     db_modify_time      datetime(3) default CURRENT_TIMESTAMP(3) on update CURRENT_TIMESTAMP(3) comment 'db modify time'
 );

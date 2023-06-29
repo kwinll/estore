@@ -1,6 +1,7 @@
 package com.alezhang.estore.service.impl;
 
 import com.alezhang.estore.controller.req.AddDiscountReq;
+import com.alezhang.estore.data.enumeration.DiscountStrategy;
 import com.alezhang.estore.data.model.Discount;
 import com.alezhang.estore.data.repository.DiscountRepository;
 import com.alezhang.estore.service.AbstractBaseService;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.Objects;
 
 
@@ -48,16 +50,26 @@ public class DiscountServiceImpl extends AbstractBaseService implements IDiscoun
     public boolean addDiscount(AddDiscountReq addDiscountReq) {
         if (Objects.isNull(addDiscountReq) || StringUtils.isBlank(addDiscountReq.getProductId())
                 || Objects.isNull(addDiscountReq.getDiscountStrategy()) || addDiscountReq.getTriggerThreshold() <= 0
-                || !VALID_DISCOUNT_PERCENTAGE.contains(addDiscountReq.getDiscountPercentage())) {
+                || (!VALID_DISCOUNT_PERCENTAGE.contains(addDiscountReq.getDiscountPercentage())
+                && !DiscountStrategy.BUY_N_GET_STH_FREE.equals(addDiscountReq.getDiscountStrategy())
+        )) {
             log.warn("Illegal parameter for add discount request: {}", addDiscountReq);
             throw new IllegalArgumentException("Illegal argument while add discount");
         }
         checkPermission(addDiscountReq.getUid());
+
         productService.checkProductExists(addDiscountReq.getProductId());
 
         if (Objects.nonNull(discountRepository.findByProductId(addDiscountReq.getProductId()))) {
             throw new RuntimeException("Only one discount allowed for the same product");
         }
+
+        if (addDiscountReq.getDiscountStrategy().equals(DiscountStrategy.BUY_N_GET_STH_FREE)) {
+            if (Objects.nonNull(discountRepository.findByStrategy(DiscountStrategy.BUY_N_GET_STH_FREE.name()))) {
+                throw new RuntimeException("Duplicated strategy for The buy n get sth free");
+            }
+        }
+
         Discount discount = assembleDiscount(addDiscountReq);
         log.info("Going to save discount: {}", discount);
         discountRepository.save(discount);
@@ -117,5 +129,17 @@ public class DiscountServiceImpl extends AbstractBaseService implements IDiscoun
             log.error("User [{}] is not the admin for discount operations", uid);
             throw new RuntimeException("Only admin can perform this action");
         }
+    }
+
+
+    @Override
+    public Discount findBuyNGetSthFree() {
+        return discountRepository.findByStrategy(DiscountStrategy.BUY_N_GET_STH_FREE.name()).get(0);
+    }
+
+
+    @Override
+    public List<Discount> findHybrids() {
+        return discountRepository.findByStrategy(DiscountStrategy.BUY_SINGLE_N_GET_STH_FREE.name());
     }
 }

@@ -3,6 +3,7 @@ package com.alezhang.estore.service.impl;
 import com.alezhang.estore.EstoreApplication;
 import com.alezhang.estore.controller.req.AddDiscountReq;
 import com.alezhang.estore.controller.req.AddProductReq;
+import com.alezhang.estore.data.enumeration.DiscountStrategy;
 import com.alezhang.estore.data.model.Discount;
 import com.alezhang.estore.data.repository.CartRepository;
 import com.alezhang.estore.data.repository.ProductRepository;
@@ -136,8 +137,22 @@ public class DiscountServiceTest {
         discountService.removeDiscount(TEST_PRODUCT_ID_1, ADMIN_ACCT_ID);
         Discount discount = discountService.findDiscountByProductId(TEST_PRODUCT_ID_1);
         assertTrue(Objects.isNull(discount));
-
     }
+
+    @Test
+    public void addDiscountNew(){
+        when(addDiscountReq.getProductId()).thenReturn(TEST_PRODUCT_ID_1);
+        when(addDiscountReq.getDiscountStrategy()).thenReturn(DiscountStrategy.BUY_N_GET_TOTAL_DISCOUNT);
+        when(addDiscountReq.getTriggerThreshold()).thenReturn(TEST_TRIGGER_THRESHOLD);
+        when(addDiscountReq.getUid()).thenReturn(ADMIN_ACCT_ID);
+        when(addDiscountReq.getDiscountPercentage()).thenReturn(10);
+        addProduct();
+        boolean result = discountService.addDiscount(addDiscountReq);
+        Discount discount = discountService.findDiscountByProductId(TEST_PRODUCT_ID_1);
+        System.out.println();
+    }
+
+
 
     private void addProduct() {
         when(addProductReq1.getProductId()).thenReturn(TEST_PRODUCT_ID_1);

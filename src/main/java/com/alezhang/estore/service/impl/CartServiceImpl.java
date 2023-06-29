@@ -11,6 +11,8 @@ import com.alezhang.estore.data.repository.CartRepository;
 import com.alezhang.estore.service.*;
 import com.alezhang.estore.util.EStoreLockUtils;
 import com.alezhang.estore.util.IEStoreLock;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -19,9 +21,7 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -39,6 +39,7 @@ public class CartServiceImpl extends AbstractBaseService implements ICartService
     private static final IEStoreLock<String> CART_LOCK = new EStoreLockUtils<>();
 
     private static final BigDecimal PERCENTAGE_DENOMINATOR = new BigDecimal("100");
+
 
 
     /**
@@ -154,8 +155,59 @@ public class CartServiceImpl extends AbstractBaseService implements ICartService
             checkoutResp.setOriginalTotalPrice(originalTotalPrice);
             checkoutResp.setRealTotalPrice(realTotalPrice);
             checkoutResp.setDiscount(discount);
+
+            List<CheckoutDetail> tmpList = Lists.newArrayList();
+            tmpList.addAll(buySingleNGetSthFree(checkoutDetails));
+            tmpList.add(buyTotalGetSthFree(checkoutDetails));
+            checkoutDetails.addAll(tmpList);
+
         }
         return checkoutResp;
+    }
+
+    private List<CheckoutDetail> buySingleNGetSthFree(List<CheckoutDetail> checkoutDetails){
+
+        List<CheckoutDetail> result = Lists.newArrayList();
+
+        List<Discount> hybridDiscounts = discountService.findHybrids();
+
+        List<String> cartProductIds = checkoutDetails.stream().map(CheckoutDetail::getProductId).collect(Collectors.toList());
+        if(!CollectionUtils.isEmpty(hybridDiscounts)){
+            hybridDiscounts.forEach(entry->{
+                List<String> triggerProductIds = List.of(entry.getTriggerProductIds().split(","));
+                if(triggerProductIds.stream().allMatch(id -> cartProductIds.contains(id))){
+                    CheckoutDetail checkoutDetail = new CheckoutDetail();
+                    checkoutDetail.setCount(1);
+                    checkoutDetail.setProductId(entry.getProductId());
+                    Product product = productService.queryProduct(entry.getProductId());
+                    checkoutDetail.setProductName(product.getProductName());
+                    checkoutDetail.setDiscount(product.getPrice());
+                    checkoutDetail.setRealTotalPrice(BigDecimal.ZERO);
+                    checkoutDetail.setOriginalTotalPrice(product.getPrice());
+                    result.add(checkoutDetail);
+                };
+            });
+        }
+        return result;
+    }
+
+    private CheckoutDetail buyTotalGetSthFree(List<CheckoutDetail> checkoutDetails){
+
+        Discount buyNGetSthFree = discountService.findBuyNGetSthFree();
+        int totalCount = checkoutDetails.stream().map(CheckoutDetail::getCount).reduce(0, (v1, v2) -> v1 + v2);
+        if(Objects.nonNull(buyNGetSthFree) && totalCount >= buyNGetSthFree.getTriggerThreshold()){
+            CheckoutDetail checkoutDetail = new CheckoutDetail();
+            checkoutDetail.setCount(1);
+            checkoutDetail.setProductId(buyNGetSthFree.getProductId());
+            Product product = productService.queryProduct(buyNGetSthFree.getProductId());
+            checkoutDetail.setProductName(product.getProductName());
+            checkoutDetail.setDiscount(product.getPrice());
+            checkoutDetail.setRealTotalPrice(BigDecimal.ZERO);
+            checkoutDetail.setOriginalTotalPrice(product.getPrice());
+
+            return checkoutDetail;
+        }
+        return null;
     }
 
 
