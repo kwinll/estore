@@ -59,8 +59,8 @@ public class CartServiceImpl extends AbstractBaseService implements ICartService
         checkPermission(modifyCartReq.getUid());
         productService.checkProductExists(modifyCartReq.getProductId());
         String lockKey = modifyCartReq.getUid() + modifyCartReq.getProductId();
+        CART_LOCK.lock(lockKey);
         try {
-            CART_LOCK.lock(lockKey);
             Optional<Cart> cartOptional = findByUidAndProductId(modifyCartReq.getUid(), modifyCartReq.getProductId());
             if (cartOptional.isPresent() && modifyCartReq.getCount() == 0) {
                 log.info("Perform cart deletion for request: {}", modifyCartReq);
