@@ -5,7 +5,7 @@ package com.alezhang.estore.util;
  *
  */
 public interface IEStoreLock<T> {
-    void lock(T key);
+    boolean tryLock(T key);
 
     void unlock(T key);
 }

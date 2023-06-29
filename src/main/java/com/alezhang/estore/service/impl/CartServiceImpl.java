@@ -59,22 +59,26 @@ public class CartServiceImpl extends AbstractBaseService implements ICartService
         checkPermission(modifyCartReq.getUid());
         productService.checkProductExists(modifyCartReq.getProductId());
         String lockKey = modifyCartReq.getUid() + modifyCartReq.getProductId();
-        CART_LOCK.lock(lockKey);
-        try {
-            Optional<Cart> cartOptional = findByUidAndProductId(modifyCartReq.getUid(), modifyCartReq.getProductId());
-            if (cartOptional.isPresent() && modifyCartReq.getCount() == 0) {
-                log.info("Perform cart deletion for request: {}", modifyCartReq);
-                cartRepository.deleteById(cartOptional.get().getId());
-            } else if (modifyCartReq.getCount() != 0) {
-                log.info("Perform add or update for cart request: {}", modifyCartReq);
-                Cart cart = assembleCart(modifyCartReq, cartOptional);
-                cartRepository.save(cart);
-            } else {
-                throw new RuntimeException("Cannot remove product from cart since it's not in cart");
-            }
+        boolean locked = CART_LOCK.tryLock(lockKey);
+        if (locked) {
+            try {
+                Optional<Cart> cartOptional = findByUidAndProductId(modifyCartReq.getUid(), modifyCartReq.getProductId());
+                if (cartOptional.isPresent() && modifyCartReq.getCount() == 0) {
+                    log.info("Perform cart deletion for request: {}", modifyCartReq);
+                    cartRepository.deleteById(cartOptional.get().getId());
+                } else if (modifyCartReq.getCount() != 0) {
+                    log.info("Perform add or update for cart request: {}", modifyCartReq);
+                    Cart cart = assembleCart(modifyCartReq, cartOptional);
+                    cartRepository.save(cart);
+                } else {
+                    throw new RuntimeException("Cannot remove product from cart since it's not in cart");
+                }
 
-        } finally {
-            CART_LOCK.unlock(lockKey);
+            } finally {
+                CART_LOCK.unlock(lockKey);
+            }
+        } else {
+            throw new RuntimeException("Another person is modify the same item, please try again");
         }
         return true;
     }

@@ -17,11 +17,11 @@ public final class EStoreLockUtils<T> implements IEStoreLock<T> {
      * @param key the lock key
      */
     @Override
-    public void lock(T key) {
+    public boolean tryLock(T key) {
         checkKey(key);
         ReentrantLock reentrantLock = map.computeIfAbsent(key, theKey -> new ReentrantLock());
         log.info("Starting lock for key: {}", key);
-        reentrantLock.lock();
+        return reentrantLock.tryLock();
     }
 
     /**
